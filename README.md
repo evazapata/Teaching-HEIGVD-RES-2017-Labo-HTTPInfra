@@ -3,9 +3,6 @@
 ##### Ludovic Delafontaine & Denise Gemesio
 ##### June 2017
 
-## Introduction
-
-
 ## Step 1
 ##### fb-apache-static branch
 First, we created a "docker-images" folder which contains an "apache-php-image" folder in which we create a Dockerfile. What we want to do is, better than to do it by ourselves, go on the DockerHub website and look for a *php* image already officially made.
