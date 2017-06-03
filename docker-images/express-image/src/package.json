@@ -9,6 +9,7 @@
   "author": "Denise Gemesio and Ludovic Delafontaine",
   "license": "ISC",
   "dependencies": {
-    "chance": "^1.0.9"
+    "chance": "^1.0.9",
+    "express": "^4.15.3"
   }
 }
