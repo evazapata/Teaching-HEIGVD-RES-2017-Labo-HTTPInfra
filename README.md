@@ -1,134 +1,114 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
-
-## Objectives
-
-The first objective of this lab is to get familiar with software tools that will allow us to build a **complete web infrastructure**. By that, we mean that we will build an environment that will allow us to serve **static and dynamic content** to web browsers. To do that, we will see that the **apache httpd server** can act both as a **HTTP server** and as a **reverse proxy**. We will also see that **express.js** is a JavaScript framework that makes it very easy to write dynamic web apps.
-
-The second objective is to implement a simple, yet complete, **dynamic web application**. We will create **HTML**, **CSS** and **JavaScript** assets that will be served to the browsers and presented to the users. The JavaScript code executed in the browser will issue asynchronous HTTP requests to our web infrastructure (**AJAX requests**) and fetch content generated dynamically.
-
-The third objective is to practice our usage of **Docker**. All the components of the web infrastructure will be packaged in custom Docker images (we will create at least 3 different images).
-
-## General instructions
-
-* This is a **BIG** lab and you will need a lot of time to complete it. This is the last lab of the semester (but it will keep us busy for 6 weeks!). You will also have time during the Monday lectures to work on it.
-* We have prepared webcasts for a big portion of the lab (what can get you the "base" grade).
-* To get **additional points**, you will need to do research in the documentation by yourself (we are here to help, but we will not give you step-by-step instructions!). To get the extra points, you will also need to be creative (do not expect complete guidelines).
-* You will get only one grade for the lab, but it will a 3x factor (so far, you have 4 lab grades).
-* The lab can be done in **groups of 2 students**. You will learn very important skills and tools, which you will need to next year's courses. You cannot afford to skip this content if you want to survive next year.
-* Read carefully all the **acceptance criteria**.
-* Be careful with the deadlines.
-* It is your responsibility to schedule the demo sessions (plan ahead and show your results ASAP).
-* When you do your **demo**, be prepared to that you can go through the procedure quickly (there are a lot of solutions to evaluate!)
-
-
-## Step 1: Static HTTP server with apache httpd
-
-### Webcasts
-
-* [Labo HTTP (1): Serveur apache httpd "dockerisé" servant du contenu statique](https://www.youtube.com/watch?v=XFO4OmcfI3U)
-
-### Acceptance criteria
-
-* You have a GitHub repo with everything needed to build the Docker image.
-* You do a demo, where you build the image, run a container and access content from a browser.
-* You have used a nice looking web template, different from the one shown in the webcast.
-* You are able to explain what you do in the Dockerfile.
-* You are able to show where the apache config files are located (in a running container).
-* You have documented your configuration in your report.
+# Solution
+##### Ludovic Delafontaine & Denise Gemesio
+##### June 2017
 
 ## Step 2: Dynamic HTTP server with express.js
+### Part A
 
-### Webcasts
+Inside the same folder as before, *docker-images*, we will create a new folder *express-image*. And inside this one, we will have a new Dockerfile, this time working with node.js.
+This time again we can use an official image found on DockerHub. We will get the last stable version : `node:6.10`.
 
-* [Labo HTTP (2a): Application node "dockerisée"](https://www.youtube.com/watch?v=fSIrZ0Mmpis)
-* [Labo HTTP (2b): Application express "dockerisée"](https://www.youtube.com/watch?v=o4qHbf_vMu0)
+```
+FROM node:6.10
+COPY src/ /opt/app
+CMD ["node", "/opt/app/index.js"]
+```
 
-### Acceptance criteria
+- When a container from this image is launched, the first command that will be executed is `node /opt/app/index.js`.
 
-* You have a GitHub repo with everything needed to build the Docker image.
-* You do a demo, where you build the image, run a container and access content from a browser.
-* You generate dynamic, random content and return a JSON payload to the client.
-* You cannot return the same content as the webcast (you cannot return a list of people).
-* You don't have to use express.js; if you want, you can use another JavaScript web framework or event another language.
-* You have documented your configuration in your report.
+Again, we will initially use `src` as folder from where to copy local files into the containers. We then have to create the src file and inside it, execute the command line `npm init`. This will allow us to create a `package.json` file. At the moment, we do not have any dependence.
+In this step, we will use an npm module which name is *chance*. Then we will execute `npm install --save chance`. This will create a dependence in the file `package.json`.
 
+We now have to create an `index.js` file. This is the node.js equivalent of the `index.html` of step 1. We will first test it with the following code :
 
-## Step 3: Reverse proxy with apache (static configuration)
+```
+var Chance = require('chance');
+var chance = new Chance();
 
-### Webcasts
+console.log("Good morning " + chance.country({ full:true }) + " !");
+```
 
-* [Labo HTTP (3a): reverse proxy apache httpd dans Docker](https://www.youtube.com/watch?v=WHFlWdcvZtk)
-* [Labo HTTP (3b): reverse proxy apache httpd dans Docker](https://www.youtube.com/watch?v=fkPwHyQUiVs)
-* [Labo HTTP (3c): reverse proxy apache httpd dans Docker](https://www.youtube.com/watch?v=UmiYS_ObJxY)
+This will allow us to write a different message in the console everytime a container is run.
+The tests are conclusive, we get the different messages everytime.
 
+### Part B
+In this part, we will first install `express`, the npm module with `npm install --save express`.
+We can now use `express` in our `index.js` file.
 
-### Acceptance criteria
+```
+var express = require('express');
+var app = express();
 
-* You have a GitHub repo with everything needed to build the Docker image for the container.
-* You do a demo, where you start from an "empty" Docker environment (no container running) and where you start 3 containers: static server, dynamic server and reverse proxy; in the demo, you prove that the routing is done correctly by the reverse proxy.
-* You can explain and prove that the static and dynamic servers cannot be reached directly (reverse proxy is a single entry point in the infra). 
-* You are able to explain why the static configuration is fragile and needs to be improved.
-* You have documented your configuration in your report.
+app.get('/', function(req, res) {
+	res.send("Hello mama!");
+});
 
+app.listen(3000, function() {
+	console.log('Accepting HTTP requests on port 3000');
+});
+```
 
-## Step 4: AJAX requests with JQuery
+At this point, we can execute this file with the line `node index.js` and it will create a server which accepts connexions on port 3000. If on another terminal, we execute `telnet localhost 3000`, we connect to the server, and when we execute `GET / HTTP/1.0`, we get the message "Hello mama!" and the connection is directly closed.
+If, for example, the path in the `get` command is not only '/' but '/first', then we can create a get function for this path in the `index.js` file and it will respond with its message instead of the one of the '/' path. Of course, the command after connecting with telnet will be `GET /first HTTP/1.0`.
 
-### Webcasts
+For the next step of part b, what we want to do is not only send a basic message but the result of a function. Then the `index.js` file will change a bit :
 
-* [Labo HTTP (4): AJAX avec JQuery](https://www.youtube.com/watch?v=fgpNEbgdm5k)
+```
+var Chance = require('chance');
+var chance = new Chance();
 
-### Acceptance criteria
+var express = require('express');
+var app = express();
 
-* You have a GitHub repo with everything needed to build the various images.
-* You do a complete, end-to-end demonstration: the web page is dynamically updated every few seconds (with the data coming from the dynamic backend).
-* You are able to prove that AJAX requests are sent by the browser and you can show the content of th responses.
-* You are able to explain why your demo would not work without a reverse proxy (because of a security restriction).
-* You have documented your configuration in your report.
+app.get('/', function(req, res) {
+	res.send( generateCountries() );
+});
 
-## Step 5: Dynamic reverse proxy configuration
+app.listen(3000, function() {
+	console.log('Accepting HTTP requests on port 3000');
+});
 
-### Webcasts
+function generateCountries() {
+	var numberOfCountries = chance.integer({
+		min: 0,
+		max: 10
+	});
 
-* [Labo HTTP (5a): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=iGl3Y27AewU)
-* [Labo HTTP (5b): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=lVWLdB3y-4I)
-* [Labo HTTP (5c): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=MQj-FzD-0mE)
-* [Labo HTTP (5d): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=B_JpYtxoO_E)
-* [Labo HTTP (5e): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=dz6GLoGou9k)
+	console.log(numberOfCountries);
 
-### Acceptance criteria
+	var countries = [];
 
-* You have a GitHub repo with everything needed to build the various images.
-* You have found a way to replace the static configuration of the reverse proxy (hard-coded IP adresses) with a dynamic configuration.
-* You may use the approach presented in the webcast (environment variables and PHP script executed when the reverse proxy container is started), or you may use another approach. The requirement is that you should not have to rebuild the reverse proxy Docker image when the IP addresses of the servers change.
-* You are able to do an end-to-end demo with a well-prepared scenario. Make sure that you can demonstrate that everything works fine when the IP addresses change!
-* You are able to explain how you have implemented the solution and walk us through the configuration and the code.
-* You have documented your configuration in your report.
+	for (var i = 0; i < numberOfCountries; i++) {
+		var population = chance.integer({
+			min: 1000,
+			max: 35000000
+		});
+		var president = chance.name();
 
-## Additional steps to get extra points on top of the "base" grade
+		countries.push({
+			country : chance.country({ full:true }),
+			population : population,
+			president : president
+		});
+	};
+	console.log(countries);
+	return countries;
+}
+```
 
-### Load balancing: multiple server nodes (0.5pt)
+This code will generate an array of countries associated with their population and their president. We get this in JSON type and we get the length of the content as well as some other information.
 
-* You extend the reverse proxy configuration to support **load balancing**. 
-* You show that you can have **multiple static server nodes** and **multiple dynamic server nodes**. 
-* You prove that the **load balancer** can distribute HTTP requests between these nodes.
-* You have documented your configuration and your validation procedure in your report.
+After these tests, we can use the `index.js` file without problem. So we have built the image `res/express_students` and then ran it without any port mapping. How could we join it?
+Using the command line `docker-machine ssh` we get to connect to the virtual machine. As seen before, what we can do is use the command line `docker inspect *name of the container*` and get the IP address of the container. You can then type the following command : `telnet *IP address retrieved* 3000` and this will get you the desired answer after you type `GET / HTTP/1.0`. But this will only be accessible from the "inside" as the IP address is part of your local addresses. How to resolve it?
+We have first to kill the current container and then execute it with port mapping with the option `-p 9090:3000` to connect on port 3000. Now, in place of connecting to the container directly, we can connect to the virtual machine through `telnet 192.168.99.100 9090`. This will have the same effect as the previous connections.
 
-### Load balancing: round-robin vs sticky sessions (0.5 pt)
+## Demo
+For a complete demo, you can run the bash script `demo.sh`.
 
-* You do a setup to demonstrate the notion of sticky session.
-* You prove that your load balancer can distribute HTTP requests in a round-robin fashion to the dynamic server nodes (because there is no state).
-* You prove that your load balancer can handle sticky sessions when forwarding HTTP requests to the static server nodes.
-* You have documented your configuration and your validation procedure in your report.
+```
+chmod +x demo.sh
+./demo.sh
+```
 
-### Dynamic cluster management (0.5 pt)
-
-* You develop a solution, where the server nodes (static and dynamic) can appear or disappear at any time.
-* You show that the load balancer is dynamically updated to reflect the state of the cluster.
-* You describe your approach (are you implementing a discovery protocol based on UDP multicast? are you using a tool such as serf?)
-* You have documented your configuration and your validation procedure in your report.
-
-### Management UI (0.5 pt)
-
-* You develop a web app (e.g. with express.js) that administrators can use to monitor and update your web infrastructure.
-* You find a way to control your Docker environment (list containers, start/stop containers, etc.) from the web app. For instance, you use the Dockerode npm module (or another Docker client library, in any of the supported languages).
-* You have documented your configuration and your validation procedure in your report.
+For the demo, you need the following packages to be installed: docker
