@@ -11,7 +11,7 @@ This time again we can use an official image found on DockerHub. We will get the
 
 ```
 FROM node:6.10
-COPY src/ /opt/app
+COPY src /opt/app
 CMD ["node", "/opt/app/index.js"]
 ```
 
