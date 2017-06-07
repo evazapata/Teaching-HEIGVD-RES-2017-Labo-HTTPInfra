@@ -1,134 +1,59 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
-
-## Objectives
-
-The first objective of this lab is to get familiar with software tools that will allow us to build a **complete web infrastructure**. By that, we mean that we will build an environment that will allow us to serve **static and dynamic content** to web browsers. To do that, we will see that the **apache httpd server** can act both as a **HTTP server** and as a **reverse proxy**. We will also see that **express.js** is a JavaScript framework that makes it very easy to write dynamic web apps.
-
-The second objective is to implement a simple, yet complete, **dynamic web application**. We will create **HTML**, **CSS** and **JavaScript** assets that will be served to the browsers and presented to the users. The JavaScript code executed in the browser will issue asynchronous HTTP requests to our web infrastructure (**AJAX requests**) and fetch content generated dynamically.
-
-The third objective is to practice our usage of **Docker**. All the components of the web infrastructure will be packaged in custom Docker images (we will create at least 3 different images).
-
-## General instructions
-
-* This is a **BIG** lab and you will need a lot of time to complete it. This is the last lab of the semester (but it will keep us busy for 6 weeks!). You will also have time during the Monday lectures to work on it.
-* We have prepared webcasts for a big portion of the lab (what can get you the "base" grade).
-* To get **additional points**, you will need to do research in the documentation by yourself (we are here to help, but we will not give you step-by-step instructions!). To get the extra points, you will also need to be creative (do not expect complete guidelines).
-* You will get only one grade for the lab, but it will a 3x factor (so far, you have 4 lab grades).
-* The lab can be done in **groups of 2 students**. You will learn very important skills and tools, which you will need to next year's courses. You cannot afford to skip this content if you want to survive next year.
-* Read carefully all the **acceptance criteria**.
-* Be careful with the deadlines.
-* It is your responsibility to schedule the demo sessions (plan ahead and show your results ASAP).
-* When you do your **demo**, be prepared to that you can go through the procedure quickly (there are a lot of solutions to evaluate!)
-
-
-## Step 1: Static HTTP server with apache httpd
-
-### Webcasts
-
-* [Labo HTTP (1): Serveur apache httpd "dockerisé" servant du contenu statique](https://www.youtube.com/watch?v=XFO4OmcfI3U)
-
-### Acceptance criteria
-
-* You have a GitHub repo with everything needed to build the Docker image.
-* You do a demo, where you build the image, run a container and access content from a browser.
-* You have used a nice looking web template, different from the one shown in the webcast.
-* You are able to explain what you do in the Dockerfile.
-* You are able to show where the apache config files are located (in a running container).
-* You have documented your configuration in your report.
-
-## Step 2: Dynamic HTTP server with express.js
-
-### Webcasts
-
-* [Labo HTTP (2a): Application node "dockerisée"](https://www.youtube.com/watch?v=fSIrZ0Mmpis)
-* [Labo HTTP (2b): Application express "dockerisée"](https://www.youtube.com/watch?v=o4qHbf_vMu0)
-
-### Acceptance criteria
-
-* You have a GitHub repo with everything needed to build the Docker image.
-* You do a demo, where you build the image, run a container and access content from a browser.
-* You generate dynamic, random content and return a JSON payload to the client.
-* You cannot return the same content as the webcast (you cannot return a list of people).
-* You don't have to use express.js; if you want, you can use another JavaScript web framework or event another language.
-* You have documented your configuration in your report.
-
+# Solution
+##### Ludovic Delafontaine & Denise Gemesio
+##### June 2017
 
 ## Step 3: Reverse proxy with apache (static configuration)
 
-### Webcasts
+In this third step, what we are going to do is create an apache as reverse proxy. It will be used as a unique entrance to both of the containers we created in steps 1 and 2. As the reverse proxy has no html code, the advantage of it will be security. But we will later learn it is not the only advantage.
 
-* [Labo HTTP (3a): reverse proxy apache httpd dans Docker](https://www.youtube.com/watch?v=WHFlWdcvZtk)
-* [Labo HTTP (3b): reverse proxy apache httpd dans Docker](https://www.youtube.com/watch?v=fkPwHyQUiVs)
-* [Labo HTTP (3c): reverse proxy apache httpd dans Docker](https://www.youtube.com/watch?v=UmiYS_ObJxY)
+### Part A - Introduction about AJAX and the reverse proxies
+Most of the times a browser will make a request to a static server to get HTML files or a JPEG image or JavaScript files, etc. Everytime the browser makes a GET request, the static server will answer with what the browser asked and the browser will refresh and so on.
 
+An AJAX request is that everytime we have refreshed a webpage, then a JavaScript file could be running and asking for informations which will be sent in an asynchronous way to the dynamic server. This is most of time seen when parts of the webpage have to be refreshed, for example when you have to fill a form and get an answer for it.
+To use AJAX requests we nearly have the obligation to create a reverse proxy. The reason is that thers is a policy named the "Same-origin policy" which specifies that if you are making a request to a certain domain and getting answers, then you can only contact this same domain in the script and not another one. So accessing the static and the dynamic server would be impossible. That is another reason why we have to use a reverse proxy. This is also about security. The reverse proxy will have a domain name and from the point of view of the browser, we will only access this domain and not the two other sub domains who are the static and dynamic servers.
 
-### Acceptance criteria
+### Part B - Setting a new Docker image for a reverse proxy (on a specific container)
+In this part, we will set a new Docker image for a reverse proxy.
+First, what we will do is run our two containers : apache_static and express_students. We will give them names so that it is easy to type their names.
+Then, we will get their IP addresses :
 
-* You have a GitHub repo with everything needed to build the Docker image for the container.
-* You do a demo, where you start from an "empty" Docker environment (no container running) and where you start 3 containers: static server, dynamic server and reverse proxy; in the demo, you prove that the routing is done correctly by the reverse proxy.
-* You can explain and prove that the static and dynamic servers cannot be reached directly (reverse proxy is a single entry point in the infra). 
-* You are able to explain why the static configuration is fragile and needs to be improved.
-* You have documented your configuration in your report.
+	- apache_static IP address = 172.17.0.2
+	- express_dynamic IP address = 172.17.0.3
 
+For the apache_static container, we can simply connect with `telnet 172.17.0.2 80` and get the HTML code we coded in the first step.
+For the express_dynamic container, we can simply connect with `telnet 172.17.03 3000` and get the express code we coded in the second step and which retrieves us an array of countries.
 
-## Step 4: AJAX requests with JQuery
+We will now access the filesystem of a container of apache we just launched with `docker run -it -p 8080:80 res/apache_php /bin/bash`. We can go to the following path to see which are the available sites : `/etc/apache2/sites-available`. We will first find a file named `000-default.conf`which is the file in which we can for example find the information about which is the root document (in our case `/var/www/html`). When we see it from the eyes of the reverse proxy, we will actually ask him to go to the `/var/www/html` file to get for example the static server or let's say `/var/www/html/dynamic` for the dynamic server. So the reverse proxy will determine which is the server contacted thanks to the path given.
 
-### Webcasts
+At this point, we will get the `000-default.conf` file and copy it inside a `001-reverse-proxy.conf` file. Inside it, we will just inform it about the fact that the domain name will be `demo.res.ch`. We will add "ProxyPass" which is the path to where the browser wants to go and "ProxyPassReverse" which is the same content but explains the path back to the browser `"/api/countries/" "http://172.17.0.3:3000/"`. Then we will add what should happen when there is no path, like `/`. In this case, we will add a "ProxyPass" and a "ProxyPassReverse" too, but attention, after what is more specified or else the program would just stop at the first rule.
 
-* [Labo HTTP (4): AJAX avec JQuery](https://www.youtube.com/watch?v=fgpNEbgdm5k)
+After what we have done, we should restart the apache server. If we do so with `service apache2 restart`, it will not do anything because we have set a domain name but we did not have made it available. So we can go to `/etc/apache2/sites-enabled` and check that we do not have nothing for the moment. To enable the site, we have to go to `/etc/apache2` and type `a2ensite 001*`. We then have to type `service apache2 reload` and we will get an error because we use "ProxyPass" and it is not a known expression. It says it may be contained in a module which has not already been installed. Then, to make it right, we will have to activate the needed modules : `a2enmod proxy` and `a2enmod proxy_http`. Now we can finally use the `service apache2 reload`!
 
-### Acceptance criteria
+To test the configuration, we have to `telnet 172.17.0.2 80`. We can not join the service. If we type `telnet 192.168.99.100 8080` we can connect and then we can type :
 
-* You have a GitHub repo with everything needed to build the various images.
-* You do a complete, end-to-end demonstration: the web page is dynamically updated every few seconds (with the data coming from the dynamic backend).
-* You are able to prove that AJAX requests are sent by the browser and you can show the content of th responses.
-* You are able to explain why your demo would not work without a reverse proxy (because of a security restriction).
-* You have documented your configuration in your report.
+```
+GET / HTTP/1.0
+Host: demo.res.ch
+```
 
-## Step 5: Dynamic reverse proxy configuration
+This returns us the content of the HTML file. We then obtained what we initially wanted with : `ProxyPass "/" "http://172.17.0.3:80/"`. We can also try :
 
-### Webcasts
+```
+GET /api/countries/ HTTP/1.0
+Host: demo.res.ch
+```
 
-* [Labo HTTP (5a): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=iGl3Y27AewU)
-* [Labo HTTP (5b): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=lVWLdB3y-4I)
-* [Labo HTTP (5c): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=MQj-FzD-0mE)
-* [Labo HTTP (5d): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=B_JpYtxoO_E)
-* [Labo HTTP (5e): configuration dynamique du reverse proxy](https://www.youtube.com/watch?v=dz6GLoGou9k)
+And this will return the express content. We then obtained what we initially wanted with : `ProxyPass "/api/countries/" "http://172.17.0.3:3000/"`.
 
-### Acceptance criteria
+### Part C - Setting a new Docker image for a reverse proxy (on every container)
 
-* You have a GitHub repo with everything needed to build the various images.
-* You have found a way to replace the static configuration of the reverse proxy (hard-coded IP adresses) with a dynamic configuration.
-* You may use the approach presented in the webcast (environment variables and PHP script executed when the reverse proxy container is started), or you may use another approach. The requirement is that you should not have to rebuild the reverse proxy Docker image when the IP addresses of the servers change.
-* You are able to do an end-to-end demo with a well-prepared scenario. Make sure that you can demonstrate that everything works fine when the IP addresses change!
-* You are able to explain how you have implemented the solution and walk us through the configuration and the code.
-* You have documented your configuration in your report.
+### Demo
+For a complete demo, you can run the bash script `demo.sh`.
 
-## Additional steps to get extra points on top of the "base" grade
+```
+chmod +x demo.sh
+./demo.sh
+```
 
-### Load balancing: multiple server nodes (0.5pt)
-
-* You extend the reverse proxy configuration to support **load balancing**. 
-* You show that you can have **multiple static server nodes** and **multiple dynamic server nodes**. 
-* You prove that the **load balancer** can distribute HTTP requests between these nodes.
-* You have documented your configuration and your validation procedure in your report.
-
-### Load balancing: round-robin vs sticky sessions (0.5 pt)
-
-* You do a setup to demonstrate the notion of sticky session.
-* You prove that your load balancer can distribute HTTP requests in a round-robin fashion to the dynamic server nodes (because there is no state).
-* You prove that your load balancer can handle sticky sessions when forwarding HTTP requests to the static server nodes.
-* You have documented your configuration and your validation procedure in your report.
-
-### Dynamic cluster management (0.5 pt)
-
-* You develop a solution, where the server nodes (static and dynamic) can appear or disappear at any time.
-* You show that the load balancer is dynamically updated to reflect the state of the cluster.
-* You describe your approach (are you implementing a discovery protocol based on UDP multicast? are you using a tool such as serf?)
-* You have documented your configuration and your validation procedure in your report.
-
-### Management UI (0.5 pt)
-
-* You develop a web app (e.g. with express.js) that administrators can use to monitor and update your web infrastructure.
-* You find a way to control your Docker environment (list containers, start/stop containers, etc.) from the web app. For instance, you use the Dockerode npm module (or another Docker client library, in any of the supported languages).
-* You have documented your configuration and your validation procedure in your report.
+For the demo, you need the following packages to be installed: `docker`
