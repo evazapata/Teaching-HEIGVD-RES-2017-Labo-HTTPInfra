@@ -26,7 +26,7 @@ echo "This is the demo script for Step 1: Static HTTP server with apache httpd."
 read -p "Press <Enter> to run the demo."
 
 echo "Building docker image..."
-sudo docker build --tag "$IMAGE_NAME" "$IMAGE_SOURCE"
+docker build --tag "$IMAGE_NAME" "$IMAGE_SOURCE"
 
 echo "Running docker image..."
 containerId=$(sudo docker run --detach --publish $SOURCE_PORT:$DEST_PORT "$IMAGE_NAME")
@@ -35,9 +35,9 @@ echo "You can now open a browser and access to: http://localhost:$SOURCE_PORT"
 read -p "Press <Enter> to quit the demo."
 
 echo "Killing container..."
-sudo docker kill "$containerId"
+docker kill "$containerId"
 
 echo "Removing docker image..."
-sudo docker rmi --force res/apache-php
+docker rmi --force res/apache-php
 
 echo "Demo done !"

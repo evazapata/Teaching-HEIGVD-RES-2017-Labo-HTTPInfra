@@ -1,12 +1,10 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
-# Solution
-##### Ludovic Delafontaine & Denise Gemesio
-##### June 2017
+#### Ludovic Delafontaine & Denise Gemesio, HEIG-VD June 2017
 
 ## Step 1: Static HTTP server with apache httpd
 
-First, we created a "docker-images" folder which contains an "apache-php-image" folder in which we create a Dockerfile. What we want to do is, better than to do it by ourselves, go on the DockerHub website and look for a *php* image already officially made.
-For this step, we have to go on [DockerHub](hub.docker.com) and search for *httpd* which gets us to the page : [httpd](https://hub.docker.com/_/httpd/). As we just want PHP with Apache httpd, we get the next page through a link on the *httpd* library : [php](https://hub.docker.com/_/php/). The last step is to copy the Dockerfile of *php* inside the Dockerfile we created on our own filesystem:
+First, we created a "docker-images" folder which contains an "apache-php-image" folder in which we create a Dockerfile. What we want to do, better than to do it by ourselves, is to go on the DockerHub website and look for an official image that provide us a Web server with *Apache* and *PHP*.
+For this step, we have to go on [DockerHub](hub.docker.com) and search for *httpd* which gets us to the page : [httpd](https://hub.docker.com/_/httpd/). As we just want PHP with Apache, we get the next page through a link on the *httpd* library : [php](https://hub.docker.com/_/php/). The last step is to copy the Dockerfile of *php* inside the Dockerfile we created on our own filesystem:
 
 ```
 FROM php:7.0-apache
@@ -28,7 +26,7 @@ To create a container, the last thing to do is launch the following command :
 docker run -p 9090:80 res/apache-php
 ```
 
-- The *-p* option allows us to use port mapping and then be connected to the HTTP server created through the IP address and port of the Docker machine (192.168.99.100 and 9090).
+- The `-p` option allows us to use port mapping and then be connected to the HTTP server created through the IP address and port of the Docker machine (192.168.99.100 and 9090).
 
 At this point, everything is set to have a bit of fun creating an HTML page. In fact, with the command *docker exec*, we can easily realize that the filesystem of the image is only a filesystem which will contain the HTML files. We created the file *index.html* and we wrote `Hello world` in it. When looking for the page `192.168.99.100:9090` in a browser, we can see the `Hello world` being displayed.
 
@@ -66,4 +64,4 @@ chmod +x demo.sh
 ./demo.sh
 ```
 
-For the demo, you need the following packages to be installed: `docker`
+For the demo, you need the following packages to be installed: `docker` and may need to run the script as `root`
