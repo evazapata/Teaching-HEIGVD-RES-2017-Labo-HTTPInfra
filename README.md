@@ -1,7 +1,7 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
 #### Ludovic Delafontaine & Denise Gemesio, HEIG-VD June 2017
 
-## Step 4: AJAX requests with JQuery
+## Step 5: Dynamic reverse proxy configuration
 
 ### Demo
 For a complete demo, you can run the bash script `demo.sh`.
