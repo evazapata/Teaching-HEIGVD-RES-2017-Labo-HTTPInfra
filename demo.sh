@@ -55,6 +55,12 @@ containers+=$(sudo docker run --detach --publish $STATIC_SOURCE_PORT:$STATIC_DES
 echo "Starting $DYNAMIC_IMAGE_NAME image..."
 containers+=$(sudo docker run --detach --publish $DYNAMIC_SOURCE_PORT:$DYNAMIC_DEST_PORT "$DYNAMIC_IMAGE_NAME")
 
+echo "Starting $REVERSE_IMAGE_NAME image..."
+#containers+=$(sudo docker run --detach --publish $REVERSE_SOURCE_PORT:$REVERSE_DEST_PORT "$REVERSE_IMAGE_NAME")
+
+echo "You can now try to access to localhost:$STATIC_SOURCE_PORT, it's the $STATIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to localhost:$DYNAMIC_SOURCE_PORT, it's the $DYNAMIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to localhost:$REVERSE_SOURCE_PORT, it's the $REVERSE_IMAGE_NAME image, should be accessible !"
 read -p "Press <Enter> to quit the demo."
 
 echo "Killing containers..."
