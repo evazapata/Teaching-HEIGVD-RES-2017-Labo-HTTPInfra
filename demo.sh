@@ -29,7 +29,7 @@ echo "Building docker image..."
 docker build --tag "$IMAGE_NAME" "$IMAGE_SOURCE"
 
 echo "Running docker image..."
-containerId=$(sudo docker run --detach --publish $SOURCE_PORT:$DEST_PORT "$IMAGE_NAME")
+containerId=$(docker run --detach --publish $SOURCE_PORT:$DEST_PORT "$IMAGE_NAME")
 
 echo "You can now open a browser and access to: http://localhost:$SOURCE_PORT"
 read -p "Press <Enter> to quit the demo."
