@@ -62,6 +62,32 @@ RUN a2ensite 000-* 001-*
 
 This will tell the containers that they will be based on the Apache 7.0 image. Then, it will copy the files from the *conf/* folder to the */etc/apache2* folder of the containers and finally, it will run the commands `a2enmod proxy proxy_http` to enable its modules and `a2ensite 000-* 001-*` to enable its virtual hosts.
 
+Then, inside the file *001-reverse-proxy.conf*, we will write the following code :
+
+```
+<VirtualHost *:80>
+	ServerName demo.res.ch
+
+	#ErrorLog ${APACHE_LOG_DIR}/error.log
+	#CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+	ProxyPass "/api/students/" "http://172.17.0.3:3000/"
+	ProxyPassReverse "/api/students/" "http://172.17.0.3:3000/"
+
+	ProxyPass "/" "http://172.17.0.2:80/"
+	ProxyPassReverse "/" "http://172.17.0.2:80/"
+</VirtualHost>
+```
+
+
+And inside the file *000-default.conf*, we will write the following code :
+
+```
+<VirtualHost *:80>
+</VirtualHost>
+```
+
+Why did we created this file with this code? If we only had the virtual host of *001-reverse-proxy.conf*, then it would also be the default virtual host. If the client did not send the host `demo.res.ch` (continue at 8:20 of the video).
 
 ### Demo
 For a complete demo, you can run the bash script `demo.sh`.
