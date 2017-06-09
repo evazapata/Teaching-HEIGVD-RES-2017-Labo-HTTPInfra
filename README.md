@@ -1,7 +1,5 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
-# Solution
-##### Ludovic Delafontaine & Denise Gemesio
-##### June 2017
+#### Ludovic Delafontaine & Denise Gemesio, HEIG-VD June 2017
 
 ## Step 2: Dynamic HTTP server with express.js
 ### Part A
@@ -29,8 +27,8 @@ var chance = new Chance();
 console.log("Good morning " + chance.country({ full:true }) + " !");
 ```
 
-This will allow us to write a different message in the console everytime a container is run.
-The tests are conclusive, we get the different messages everytime.
+This will allow us to write a different message in the console every time a container is run.
+The tests are conclusive, we get the different messages every time.
 
 ### Part B
 In this part, we will first install `express`, the npm module with `npm install --save express`.
@@ -111,4 +109,4 @@ chmod +x demo.sh
 ./demo.sh
 ```
 
-For the demo, you need the following packages to be installed: `docker` and `npm`
+For the demo, you need the following packages to be installed: `docker` and `npm` and may need to run the script as root
