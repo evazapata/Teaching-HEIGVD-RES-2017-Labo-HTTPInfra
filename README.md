@@ -1,6 +1,5 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
-##### Ludovic Delafontaine & Denise Gemesio
-##### June 2017
+## Ludovic Delafontaine & Denise Gemesio, HEIG-VD June 2017
 
 This document presents the result of the last lab to do in RES, HEIG-VD. You can find all the corresponding documentation in the following branchs:
 
