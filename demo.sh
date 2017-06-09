@@ -45,27 +45,33 @@ npm install --save express
 cd "$ROOT"
 
 echo "Building docker images..."
-sudo docker build --tag "$STATIC_IMAGE_NAME" "$STATIC_IMAGE_SOURCE"
-sudo docker build --tag "$DYNAMIC_IMAGE_NAME" "$DYNAMIC_IMAGE_SOURCE"
-#sudo docker build --tag "$REVERSE_IMAGE_NAME" "$REVERSE_IMAGE_SOURCE"
+docker build --tag "$STATIC_IMAGE_NAME" "$STATIC_IMAGE_SOURCE"
+docker build --tag "$DYNAMIC_IMAGE_NAME" "$DYNAMIC_IMAGE_SOURCE"
+#docker build --tag "$REVERSE_IMAGE_NAME" "$REVERSE_IMAGE_SOURCE"
 
 echo "Starting $STATIC_IMAGE_NAME image..."
-containers+=$(sudo docker run --detach --publish $STATIC_SOURCE_PORT:$STATIC_DEST_PORT "$STATIC_IMAGE_NAME")
+containers+=$(docker run --detach --publish $STATIC_SOURCE_PORT:$STATIC_DEST_PORT "$STATIC_IMAGE_NAME")
 
 echo "Starting $DYNAMIC_IMAGE_NAME image..."
-containers+=$(sudo docker run --detach --publish $DYNAMIC_SOURCE_PORT:$DYNAMIC_DEST_PORT "$DYNAMIC_IMAGE_NAME")
+containers+=$(docker run --detach --publish $DYNAMIC_SOURCE_PORT:$DYNAMIC_DEST_PORT "$DYNAMIC_IMAGE_NAME")
 
+echo "Starting $REVERSE_IMAGE_NAME image..."
+#containers+=$(docker run --detach --publish $REVERSE_SOURCE_PORT:$REVERSE_DEST_PORT "$REVERSE_IMAGE_NAME")
+
+echo "You can now try to access to localhost:$STATIC_SOURCE_PORT, it's the $STATIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to localhost:$DYNAMIC_SOURCE_PORT, it's the $DYNAMIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to localhost:$REVERSE_SOURCE_PORT, it's the $REVERSE_IMAGE_NAME image, should be accessible !"
 read -p "Press <Enter> to quit the demo."
 
 echo "Killing containers..."
 for container in "${containers[@]}"; do
-    sudo docker kill "${container}"
+    docker kill "${container}"
 done
 
 
 echo "Removing docker image..."
-sudo docker rmi --force "$STATIC_IMAGE_NAME"
-sudo docker rmi --force "$DYNAMIC_IMAGE_NAME"
-sudo docker rmi --force "$REVERSE_IMAGE_NAME"
+docker rmi --force "$STATIC_IMAGE_NAME"
+docker rmi --force "$DYNAMIC_IMAGE_NAME"
+docker rmi --force "$REVERSE_IMAGE_NAME"
 
 echo "Demo done !"
