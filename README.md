@@ -22,7 +22,7 @@ Then, we will get their IP addresses :
 	- express_dynamic IP address = 172.17.0.3
 
 For the apache_static container, we can simply connect with `telnet 172.17.0.2 80` and get the HTML code we coded in the first step.
-For the express_dynamic container, we can simply connect with `telnet 172.17.03 3000` and get the express code we coded in the second step and which retrieves us an array of countries.
+For the express_dynamic container, we can simply connect with `telnet 172.17.0.3 3000` and get the express code we coded in the second step and which retrieves us an array of countries.
 
 We will now access the filesystem of a container of apache we just launched with `docker run -it -p 8080:80 res/apache_php /bin/bash`. We can go to the following path to see which are the available sites : `/etc/apache2/sites-available`. We will first find a file named `000-default.conf`which is the file in which we can for example find the information about which is the root document (in our case `/var/www/html`). When we see it from the eyes of the reverse proxy, we will actually ask him to go to the `/var/www/html` file to get for example the static server or let's say `/var/www/html/dynamic` for the dynamic server. So the reverse proxy will determine which is the server contacted thanks to the path given.
 
@@ -47,6 +47,8 @@ Host: demo.res.ch
 And this will return the express content. We then obtained what we initially wanted with : `ProxyPass "/api/countries/" "http://172.17.0.3:3000/"`.
 
 ### Part C - Setting a new Docker image for a reverse proxy (on every container)
+##### (At this point, Docker having had a complete reset, I had to build and run the containers again. Then we have 172.17.0.3 as the IP address of apache_static and 172.17.0.2 as the IP address of express_dynamic)
+
 First, we have to go inside the *apache_reverse_proxy* folder we had created. In it, we will create a *conf* folder in which we will create two files : *000-default.conf* and *001-reverse-proxy.conf*. These are the same files that we created in part B.
 
 Then, we will go to the Dockerfile and modify it as follows :
@@ -71,11 +73,11 @@ Then, inside the file *001-reverse-proxy.conf*, we will write the following code
 	#ErrorLog ${APACHE_LOG_DIR}/error.log
 	#CustomLog ${APACHE_LOG_DIR}/access.log combined
 
-	ProxyPass "/api/students/" "http://172.17.0.3:3000/"
-	ProxyPassReverse "/api/students/" "http://172.17.0.3:3000/"
+	ProxyPass "/api/students/" "http://172.17.0.2:3000/"
+	ProxyPassReverse "/api/students/" "http://172.17.0.2:3000/"
 
-	ProxyPass "/" "http://172.17.0.2:80/"
-	ProxyPassReverse "/" "http://172.17.0.2:80/"
+	ProxyPass "/" "http://172.17.0.3:80/"
+	ProxyPassReverse "/" "http://172.17.0.3:80/"
 </VirtualHost>
 ```
 
@@ -87,7 +89,15 @@ And inside the file *000-default.conf*, we will write the following code :
 </VirtualHost>
 ```
 
-Why did we created this file with this code? If we only had the virtual host of *001-reverse-proxy.conf*, then it would also be the default virtual host. If the client did not send the host `demo.res.ch` (continue at 8:20 of the video).
+Be careful! If you are on Windows, then you will have to use Notepad++, for example, to change the end of lines as the UNIX ones.
+
+Why did we created this file with this code? If we only had the virtual host of *001-reverse-proxy.conf*, then it would also be the default virtual host. If the client did not send the host `demo.res.ch` or the IP address of the reverse proxy, then he would end int the *001-reverse-proxy.conf*, but we don't want that. We want that if a user connects to the IP address of the Docker machine or localhost or any other way, then there would be an error message.
+
+Now that everything is ready we can build an image of the reverse proxy from the Dockerfile with `docker build -t res/apache-rp .`. And we can now run it with `docker run -p 8080:80 res/apache-rp`. What we get is the error message specified before, because we got on the configuration of the virtual host 000.
+
+Last thing to do: what are we going to do to make it work on a browser? We will have to modify our DNS configuration. We will have to go in the `/etc/hosts` file which is the same for all systems and define the DNS names or IP addresses of machines. With administrator rights, we will then modify the file and add `192.168.99.100   demo.res.ch`. We will then test it with a `ping demo.res.ch` and we will actually receive replies from 192.168.99.100.
+
+If we now try to get to `demo.res.ch:8080` on a browser, we will get our webpage! And if we try to get to `demo.res.ch:8080/api/students/`, we get a list of countries!
 
 ### Demo
 For a complete demo, you can run the bash script `demo.sh`.
