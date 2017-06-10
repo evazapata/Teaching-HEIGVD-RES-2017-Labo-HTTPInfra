@@ -73,11 +73,11 @@ Then, inside the file *001-reverse-proxy.conf*, we will write the following code
 	#ErrorLog ${APACHE_LOG_DIR}/error.log
 	#CustomLog ${APACHE_LOG_DIR}/access.log combined
 
-	ProxyPass "/api/students/" "http://172.17.0.3:3000/"
-	ProxyPassReverse "/api/students/" "http://172.17.0.3:3000/"
+	ProxyPass "/api/students/" "http://172.17.0.2:3000/"
+	ProxyPassReverse "/api/students/" "http://172.17.0.2:3000/"
 
-	ProxyPass "/" "http://172.17.0.2:80/"
-	ProxyPassReverse "/" "http://172.17.0.2:80/"
+	ProxyPass "/" "http://172.17.0.3:80/"
+	ProxyPassReverse "/" "http://172.17.0.3:80/"
 </VirtualHost>
 ```
 
