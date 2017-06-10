@@ -22,7 +22,7 @@ Then, we will get their IP addresses :
 	- express_dynamic IP address = 172.17.0.3
 
 For the apache_static container, we can simply connect with `telnet 172.17.0.2 80` and get the HTML code we coded in the first step.
-For the express_dynamic container, we can simply connect with `telnet 172.17.03 3000` and get the express code we coded in the second step and which retrieves us an array of countries.
+For the express_dynamic container, we can simply connect with `telnet 172.17.0.3 3000` and get the express code we coded in the second step and which retrieves us an array of countries.
 
 We will now access the filesystem of a container of apache we just launched with `docker run -it -p 8080:80 res/apache_php /bin/bash`. We can go to the following path to see which are the available sites : `/etc/apache2/sites-available`. We will first find a file named `000-default.conf`which is the file in which we can for example find the information about which is the root document (in our case `/var/www/html`). When we see it from the eyes of the reverse proxy, we will actually ask him to go to the `/var/www/html` file to get for example the static server or let's say `/var/www/html/dynamic` for the dynamic server. So the reverse proxy will determine which is the server contacted thanks to the path given.
 
@@ -47,6 +47,8 @@ Host: demo.res.ch
 And this will return the express content. We then obtained what we initially wanted with : `ProxyPass "/api/countries/" "http://172.17.0.3:3000/"`.
 
 ### Part C - Setting a new Docker image for a reverse proxy (on every container)
+##### (At this point, Docker having had a complete reset, I had to build and run the containers again. Then we have 172.17.0.3 as the IP address of apache_static and 172.17.0.2 as the IP address of express_dynamic)
+
 First, we have to go inside the *apache_reverse_proxy* folder we had created. In it, we will create a *conf* folder in which we will create two files : *000-default.conf* and *001-reverse-proxy.conf*. These are the same files that we created in part B.
 
 Then, we will go to the Dockerfile and modify it as follows :
