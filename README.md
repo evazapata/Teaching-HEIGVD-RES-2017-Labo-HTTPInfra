@@ -87,7 +87,15 @@ And inside the file *000-default.conf*, we will write the following code :
 </VirtualHost>
 ```
 
-Why did we created this file with this code? If we only had the virtual host of *001-reverse-proxy.conf*, then it would also be the default virtual host. If the client did not send the host `demo.res.ch` (continue at 8:20 of the video).
+Be careful! If you are on Windows, then you will have to use Notepad++, for example, to change the end of lines as the UNIX ones.
+
+Why did we created this file with this code? If we only had the virtual host of *001-reverse-proxy.conf*, then it would also be the default virtual host. If the client did not send the host `demo.res.ch` or the IP address of the reverse proxy, then he would end int the *001-reverse-proxy.conf*, but we don't want that. We want that if a user connects to the IP address of the Docker machine or localhost or any other way, then there would be an error message.
+
+Now that everything is ready we can build an image of the reverse proxy from the Dockerfile with `docker build -t res/apache-rp .`. And we can now run it with `docker run -p 8080:80 res/apache-rp`. What we get is the error message specified before, because we got on the configuration of the virtual host 000.
+
+Last thing to do: what are we going to do to make it work on a browser? We will have to modify our DNS configuration. We will have to go in the `/etc/hosts` file which is the same for all systems and define the DNS names or IP addresses of machines. With administrator rights, we will then modify the file and add `192.168.99.100   demo.res.ch`. We will then test it with a `ping demo.res.ch` and we will actually receive replies from 192.168.99.100.
+
+If we now try to get to `demo.res.ch:8080` on a browser, we will get our webpage! And if we try to get to `demo.res.ch:8080/api/students/`, we get a list of countries!
 
 ### Demo
 For a complete demo, you can run the bash script `demo.sh`.
