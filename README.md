@@ -47,7 +47,6 @@ Host: demo.res.ch
 And this will return the express content. We then obtained what we initially wanted with : `ProxyPass "/api/countries/" "http://172.17.0.3:3000/"`.
 
 ### Part C - Setting a new Docker image for a reverse proxy (on every container)
-##### (At this point, Docker having had a complete reset, I had to build and run the containers again. Then we have 172.17.0.3 as the IP address of apache_static and 172.17.0.2 as the IP address of express_dynamic)
 
 First, we have to go inside the *apache_reverse_proxy* folder we had created. In it, we will create a *conf* folder in which we will create two files : *000-default.conf* and *001-reverse-proxy.conf*. These are the same files that we created in part B.
 
@@ -73,11 +72,11 @@ Then, inside the file *001-reverse-proxy.conf*, we will write the following code
 	#ErrorLog ${APACHE_LOG_DIR}/error.log
 	#CustomLog ${APACHE_LOG_DIR}/access.log combined
 
-	ProxyPass "/api/students/" "http://172.17.0.2:3000/"
-	ProxyPassReverse "/api/students/" "http://172.17.0.2:3000/"
+	ProxyPass "/api/students/" "http://172.17.0.3:3000/"
+	ProxyPassReverse "/api/students/" "http://172.17.0.3:3000/"
 
-	ProxyPass "/" "http://172.17.0.3:80/"
-	ProxyPassReverse "/" "http://172.17.0.3:80/"
+	ProxyPass "/" "http://172.17.0.2:80/"
+	ProxyPassReverse "/" "http://172.17.0.2:80/"
 </VirtualHost>
 ```
 
