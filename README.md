@@ -115,6 +115,29 @@ If we type the following commands : `export STATIC_APP=172.17.0.x:80` and `expor
 We are now capable, if we invoke the PHP interpreter, to generate the configuration file.
 
 ### Part D
+The file created in the previous step will be copied inside the containers. We will then modifiy the Dockerfile once again and place the *template* file inside `/var/apache2/` : 
+
+```
+FROM php:7.0-apache
+
+RUN apt-get update && \
+apt-get install -y vim
+
+COPY apache2-foreground /usr/local/bin/
+COPY templates /var/apache2/templates
+
+COPY conf/ /etc/apache2
+
+RUN a2enmod proxy proxy_http
+RUN a2ensite 000-* 001-*
+```
+
+We will also modify the *apache2-foreground* script adding the line `php /var/apache2/templates/config-template.php > /etc/apache2/sites-available/001-reverse-proxy.conf` after what we had added at the beginning of the file.
+
+And now we can build and test if this worked with the following commands : `docker build -t res/apache_rp .` and `docker run -e STATIC_APP=172 -e DYNAMIC_APP=172 res/apache_rp`. The environment variables have been retrieved. We can now *exec* the container and verify the filesystem. In the folder *templates* we actually find the *config-template.php* file. And in the folder *sites-available*, if we look at the file *001-reverse-proxy.conf*, the IP addresses have been set with *172* and in the folder *sites-enabled*, it is well too. It is all for this part.
+
+### Part E
+
 
 
 

@@ -1,5 +1,6 @@
 <?php 
-	$ip_address = getenv('STATIC_APP');
+	$STATIC_APP = getenv('STATIC_APP');
+	$DYNAMIC_APP = getenv('DYNAMIC_APP');
 ?>
 
 <VirtualHost *:80>
