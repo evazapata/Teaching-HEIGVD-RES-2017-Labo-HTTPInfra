@@ -1,17 +1,16 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
-# Solution
-##### Ludovic Delafontaine & Denise Gemesio
-##### June 2017
+#### Ludovic Delafontaine & Denise Gemesio, HEIG-VD June 2017
 
 ## Step 3: Reverse proxy with apache (static configuration)
 
-In this third step, what we are going to do is create an apache as reverse proxy. It will be used as a unique entrance to both of the containers we created in steps 1 and 2. As the reverse proxy has no html code, the advantage of it will be security. But we will later learn it is not the only advantage.
+In this third step, what we are going to do is to configure an Apache server as a reverse proxy. It will be used as a unique entrance to both of the containers we created in steps 1 and 2. The reverse proxy will not deliver anything to the clients but will provide us security. But we will later learn it is not the only advantage.
 
 ### Part A - Introduction about AJAX and the reverse proxies
 Most of the times a browser will make a request to a static server to get HTML files or a JPEG image or JavaScript files, etc. Everytime the browser makes a GET request, the static server will answer with what the browser asked and the browser will refresh and so on.
 
-An AJAX request is that everytime we have refreshed a webpage, then a JavaScript file could be running and asking for informations which will be sent in an asynchronous way to the dynamic server. This is most of time seen when parts of the webpage have to be refreshed, for example when you have to fill a form and get an answer for it.
-To use AJAX requests we nearly have the obligation to create a reverse proxy. The reason is that thers is a policy named the "Same-origin policy" which specifies that if you are making a request to a certain domain and getting answers, then you can only contact this same domain in the script and not another one. So accessing the static and the dynamic server would be impossible. That is another reason why we have to use a reverse proxy. This is also about security. The reverse proxy will have a domain name and from the point of view of the browser, we will only access this domain and not the two other sub domains who are the static and dynamic servers.
+Instead of refreshing the browser's page on every GET request, we could use a JavaScript script on client side that can interacts with the Web server in an asynchronous way. This way, we could send/receive information to/from the server without having to refresh the page. This is most of time seen when parts of a webpage change without refreshing the page, such as Facebook's Wall feed. This is possible with, for example, AJAX, a JavaScript library for asynchronous requests.
+
+In our implementation, we nearly have the obligation to create a reverse proxy to use both of the static (HTML) and dynamic (JSON) servers. The reason is that there is a policy named the "Same-origin policy" which specifies that if you are making a request to a certain domain and getting answers, then you can only contact this same domain in the script and not another one. So accessing the static and the dynamic server would be impossible. That is another reason why we have to use a reverse proxy. This is also about security. The reverse proxy will have a domain name and from the point of view of the browser, we will only access this domain and not the two other sub domains who are the static and dynamic servers. By this way of implementing our Web infrastructure, we only show to the "real" world one and one only server that can be reached. The other servers are hidden by the reverse proxy. We could have 50 servers or only two that do many differents things, from the user side, we only one server with its unique address.
 
 ### Part B - Setting a new Docker image for a reverse proxy (on a specific container)
 In this part, we will set a new Docker image for a reverse proxy.
@@ -106,4 +105,4 @@ chmod +x demo.sh
 ./demo.sh
 ```
 
-For the demo, you need the following packages to be installed: `docker`
+For the demo, you need the following packages to be installed: `docker` and may need to run the script as root.
