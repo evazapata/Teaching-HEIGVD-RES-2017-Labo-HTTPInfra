@@ -137,8 +137,24 @@ We will also modify the *apache2-foreground* script adding the line `php /var/ap
 And now we can build and test if this worked with the following commands : `docker build -t res/apache_rp .` and `docker run -e STATIC_APP=172 -e DYNAMIC_APP=172 res/apache_rp`. The environment variables have been retrieved. We can now *exec* the container and verify the filesystem. In the folder *templates* we actually find the *config-template.php* file. And in the folder *sites-available*, if we look at the file *001-reverse-proxy.conf*, the IP addresses have been set with *172* and in the folder *sites-enabled*, it is well too. It is all for this part.
 
 ### Part E
+At this point, it is all ready to work. We have :
 
+- We modified the starting script *apache2-foreground* to invoke the PHP interpreter
+- We created a PHP interpreter which retrieves the environment variables
 
+With this, we dynamically configure the Apache server. We will give the IP addresses from the outside so it will avoid the step in which we have to hardcode the IP addresses inside the configuration file.
+
+To test our configuration, we will lauch four static servers and three dynamic servers. This will allow us to have different IP addresses.
+For the two servers we will have chosen, we will inspect the containers and retrieve their IP addresses.
+
+- Static server IP address : 172.17.0.5
+- Dynamic server IP address : 172.17.0.8
+
+We can now run the reverse proxy image giving it the environment variables with the IP addresses retrieved previously : `docker run -d -e STATIC_APP=172.17.0.5:80 -e DYNAMIC_APP=172.17.0.8:3000 --name apache_rp -p 8080:80 res/apache_rp`.
+
+On a browser, we type `demo.res.ch:8080` and we get the webpage with the update of the text every two seconds and if we type `demo.res.ch:8080/api/students/` we get a list of countries every time we refresh it.
+
+And here we finish this laboratory! Thanks for reading ;)
 
 
 ### Demo
