@@ -1,12 +1,12 @@
 {
   "name": "students",
   "version": "0.1.0",
-  "description": "Last lab of RES",
+  "description": "Dernier laboratoire RES",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Denise Gemesio and Ludovic Delafontaine",
+  "author": "Ludovic Delafontaine & Denise Gemesio",
   "license": "ISC",
   "dependencies": {
     "chance": "^1.0.9",
