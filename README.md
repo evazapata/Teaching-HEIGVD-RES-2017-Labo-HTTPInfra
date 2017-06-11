@@ -88,6 +88,36 @@ RUN a2ensite 000-* 001-*
 If we now build and run the image with an envrionment variable, we can see that the variables are actually retrieved. 
 
 
+### Part C
+In this part, we will create a PHP file for the reverse proxy configuration file. If we look at the PHP documentation, then we can see that there are ways to retrieve an environment variable with, for example : `$ip = getenv('REMOTE_ADDR');`.
+
+Now that we know how it works, we can go get the configuration file hardcoded we created in the reverse proxy step inside the `conf` file and copy it inside the PHP file :
+
+```
+<?php 
+	$STATIC_APP = getenv('STATIC_APP');
+	$DYNAMIC_APP = getenv('DYNAMIC_APP');
+?>
+
+<VirtualHost *:80>
+	ServerName demo.res.ch
+
+	ProxyPass '/api/students/' 'http://<?php print "$DYNAMIC_APP"?>/'
+	ProxyPassReverse '/api/students/' 'http://<?php print "$DYNAMIC_APP"?>/'
+
+	ProxyPass '/' 'http://<?php print "$STATIC_APP"?>/'
+	ProxyPassReverse '/' 'http://<?php print "$STATIC_APP"?>/'
+</VirtualHost>
+```
+
+If we type the following commands : `export STATIC_APP=172.17.0.x:80` and `export STATIC_APP=172.17.0.y:3000`. After having typed the command `php config-template.php`, we get the environment variables replaced by the values set in the previous commands.
+
+We are now capable, if we invoke the PHP interpreter, to generate the configuration file.
+
+### Part D
+
+
+
 ### Demo
 For a complete demo, you can run the bash script `demo.sh`.
 
