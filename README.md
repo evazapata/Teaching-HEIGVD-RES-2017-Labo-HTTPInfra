@@ -154,7 +154,7 @@ We can now run the reverse proxy image giving it the environment variables with 
 
 On a browser, we type `demo.res.ch:8080` and we get the webpage with the update of the text every two seconds and if we type `demo.res.ch:8080/api/students/` we get a list of countries every time we refresh it.
 
-And here we finish this laboratory! Thanks for reading ;)
+And here we finish the basic laboratory! Thanks for reading ;)
 
 
 ### Demo
