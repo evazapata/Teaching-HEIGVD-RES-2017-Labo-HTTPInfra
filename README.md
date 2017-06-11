@@ -3,100 +3,61 @@
 ##### Ludovic Delafontaine & Denise Gemesio
 ##### June 2017
 
-## Step 3: Reverse proxy with apache (static configuration)
+## Step 4 : AJAX requests with JQuery
+In this step, we will use the JQuery library to implement an Ajax request.
 
-In this third step, what we are going to do is create an apache as reverse proxy. It will be used as a unique entrance to both of the containers we created in steps 1 and 2. As the reverse proxy has no html code, the advantage of it will be security. But we will later learn it is not the only advantage.
+Requests from the browser will automatically be sent to the dynamic server and we will get replies which will display a message on our website.
 
-### Part A - Introduction about AJAX and the reverse proxies
-Most of the times a browser will make a request to a static server to get HTML files or a JPEG image or JavaScript files, etc. Everytime the browser makes a GET request, the static server will answer with what the browser asked and the browser will refresh and so on.
-
-An AJAX request is that everytime we have refreshed a webpage, then a JavaScript file could be running and asking for informations which will be sent in an asynchronous way to the dynamic server. This is most of time seen when parts of the webpage have to be refreshed, for example when you have to fill a form and get an answer for it.
-To use AJAX requests we nearly have the obligation to create a reverse proxy. The reason is that thers is a policy named the "Same-origin policy" which specifies that if you are making a request to a certain domain and getting answers, then you can only contact this same domain in the script and not another one. So accessing the static and the dynamic server would be impossible. That is another reason why we have to use a reverse proxy. This is also about security. The reverse proxy will have a domain name and from the point of view of the browser, we will only access this domain and not the two other sub domains who are the static and dynamic servers.
-
-### Part B - Setting a new Docker image for a reverse proxy (on a specific container)
-In this part, we will set a new Docker image for a reverse proxy.
-First, what we will do is run our two containers : apache_static and express_students. We will give them names so that it is easy to type their names.
-Then, we will get their IP addresses :
-
-	- apache_static IP address = 172.17.0.2
-	- express_dynamic IP address = 172.17.0.3
-
-For the apache_static container, we can simply connect with `telnet 172.17.0.2 80` and get the HTML code we coded in the first step.
-For the express_dynamic container, we can simply connect with `telnet 172.17.0.3 3000` and get the express code we coded in the second step and which retrieves us an array of countries.
-
-We will now access the filesystem of a container of apache we just launched with `docker run -it -p 8080:80 res/apache_php /bin/bash`. We can go to the following path to see which are the available sites : `/etc/apache2/sites-available`. We will first find a file named `000-default.conf`which is the file in which we can for example find the information about which is the root document (in our case `/var/www/html`). When we see it from the eyes of the reverse proxy, we will actually ask him to go to the `/var/www/html` file to get for example the static server or let's say `/var/www/html/dynamic` for the dynamic server. So the reverse proxy will determine which is the server contacted thanks to the path given.
-
-At this point, we will get the `000-default.conf` file and copy it inside a `001-reverse-proxy.conf` file. Inside it, we will just inform it about the fact that the domain name will be `demo.res.ch`. We will add "ProxyPass" which is the path to where the browser wants to go and "ProxyPassReverse" which is the same content but explains the path back to the browser `"/api/countries/" "http://172.17.0.3:3000/"`. Then we will add what should happen when there is no path, like `/`. In this case, we will add a "ProxyPass" and a "ProxyPassReverse" too, but attention, after what is more specified or else the program would just stop at the first rule.
-
-After what we have done, we should restart the apache server. If we do so with `service apache2 restart`, it will not do anything because we have set a domain name but we did not have made it available. So we can go to `/etc/apache2/sites-enabled` and check that we do not have nothing for the moment. To enable the site, we have to go to `/etc/apache2` and type `a2ensite 001*`. We then have to type `service apache2 reload` and we will get an error because we use "ProxyPass" and it is not a known expression. It says it may be contained in a module which has not already been installed. Then, to make it right, we will have to activate the needed modules : `a2enmod proxy` and `a2enmod proxy_http`. Now we can finally use the `service apache2 reload`!
-
-To test the configuration, we have to `telnet 172.17.0.2 80`. We can not join the service. If we type `telnet 192.168.99.100 8080` we can connect and then we can type :
+First, we will kill the three remaining containers from last step. Then, in all the Dockerfiles (for the three images we have), we will write the following lines to install automatically Vim at launch for every container :
 
 ```
-GET / HTTP/1.0
-Host: demo.res.ch
+RUN apt-get update && \
+apt-get install -y vim
 ```
 
-This returns us the content of the HTML file. We then obtained what we initially wanted with : `ProxyPass "/" "http://172.17.0.3:80/"`. We can also try :
+After this, we can build all three images, whitout forgetting to port map on 8080:80 the reverse proxy one. 
+
+Finally, we will launch every container and verify that the IP addresses correspond to the ones in the reverse proxy configuration file, as they are hardcoded. We can now verify that we have access to `demo.res.ch:8080` and `demo.res.ch:8080/api/students/`.
+
+The main part is to connect to the static container. We will launch a `bash` on it and modify `index.html`. In the first test, we will only add a *!* somewhere. We can see that it will directly change on the webpage.
+
+At the end of `index.html`, we can see that there are some scripts launched. This can also be seen on the browser if we inspect the page with a right click and we go in the `Sources` menu. We will then add our own script to update some parts of the display everytime we want. To do so, we will need to first add the two following lines to the `index.html`, at the end :
 
 ```
-GET /api/countries/ HTTP/1.0
-Host: demo.res.ch
+<!-- Custom script to load countries -->
+<script src="js/countries.js"></script>
 ```
 
-And this will return the express content. We then obtained what we initially wanted with : `ProxyPass "/api/countries/" "http://172.17.0.3:3000/"`.
-
-### Part C - Setting a new Docker image for a reverse proxy (on every container)
-
-First, we have to go inside the *apache_reverse_proxy* folder we had created. In it, we will create a *conf* folder in which we will create two files : *000-default.conf* and *001-reverse-proxy.conf*. These are the same files that we created in part B.
-
-Then, we will go to the Dockerfile and modify it as follows :
+We will then go inside the folder `js` in which we will find the existing scripts. We will create `countries.js` in it and modify it. What we will do is create the script allowing us to change a text inside the webpage every two seconds :
 
 ```
-FROM php:7.0-apache
+$(function() {
+        console.log("Loading countries");
 
-COPY conf/ /etc/apache2
+        function loadCountries() {
+                $.getJSON( "/api/students/", function( countries ) {
+                        console.log(countries);
+                        var message = "Nobody is here";
+                        if ( countries.length > 0 ) {
+                                message = countries[0].country + " of " + countries[0].population + " citizen loves him!";
+                        }
+                $(".section-heading").text(message);
+                });
+        };
+	
+	loadCountries();
 
-RUN a2enmod proxy proxy_http
-RUN a2ensite 000-* 001-*
+    setInterval( loadCountries, 2000);
+});
 ```
 
-This will tell the containers that they will be based on the Apache 7.0 image. Then, it will copy the files from the *conf/* folder to the */etc/apache2* folder of the containers and finally, it will run the commands `a2enmod proxy proxy_http` to enable its modules and `a2ensite 000-* 001-*` to enable its virtual hosts.
+The `$(".section-heading")` expression will allow us to access the variable representing a certain text thanks to a class, in this case the class is `section-heading`.
+The `setInterval( loadCountries, 2000);` line will define that every 2000 milliseconds we will call the function `loadCountries();`.
 
-Then, inside the file *001-reverse-proxy.conf*, we will write the following code :
+When we save it, if we test it on a browser, we will see that the webpage actually changes every two seconds.
 
-```
-<VirtualHost *:80>
-	ServerName demo.res.ch
+When we are done with the modifications and the tests, we can copy everything we have done inside the files in our own system. Finally, we will just kill the static server container and remove the image of the static server and build it again with the new configurations. We will run a container and this should work as well as the tests done before.
 
-	#ErrorLog ${APACHE_LOG_DIR}/error.log
-	#CustomLog ${APACHE_LOG_DIR}/access.log combined
-
-	ProxyPass "/api/students/" "http://172.17.0.3:3000/"
-	ProxyPassReverse "/api/students/" "http://172.17.0.3:3000/"
-
-	ProxyPass "/" "http://172.17.0.2:80/"
-	ProxyPassReverse "/" "http://172.17.0.2:80/"
-</VirtualHost>
-```
-
-
-And inside the file *000-default.conf*, we will write the following code :
-
-```
-<VirtualHost *:80>
-</VirtualHost>
-```
-
-Be careful! If you are on Windows, then you will have to use Notepad++, for example, to change the end of lines as the UNIX ones.
-
-Why did we created this file with this code? If we only had the virtual host of *001-reverse-proxy.conf*, then it would also be the default virtual host. If the client did not send the host `demo.res.ch` or the IP address of the reverse proxy, then he would end int the *001-reverse-proxy.conf*, but we don't want that. We want that if a user connects to the IP address of the Docker machine or localhost or any other way, then there would be an error message.
-
-Now that everything is ready we can build an image of the reverse proxy from the Dockerfile with `docker build -t res/apache-rp .`. And we can now run it with `docker run -p 8080:80 res/apache-rp`. What we get is the error message specified before, because we got on the configuration of the virtual host 000.
-
-Last thing to do: what are we going to do to make it work on a browser? We will have to modify our DNS configuration. We will have to go in the `/etc/hosts` file which is the same for all systems and define the DNS names or IP addresses of machines. With administrator rights, we will then modify the file and add `192.168.99.100   demo.res.ch`. We will then test it with a `ping demo.res.ch` and we will actually receive replies from 192.168.99.100.
-
-If we now try to get to `demo.res.ch:8080` on a browser, we will get our webpage! And if we try to get to `demo.res.ch:8080/api/students/`, we get a list of countries!
 
 ### Demo
 For a complete demo, you can run the bash script `demo.sh`.
