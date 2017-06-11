@@ -109,4 +109,4 @@ chmod +x demo.sh
 ./demo.sh
 ```
 
-For the demo, you need the following packages to be installed: `docker` and `npm` and may need to run the script as root
+For the demo, you need the following packages to be installed: `docker` and `npm` and may need to run the script as root.
