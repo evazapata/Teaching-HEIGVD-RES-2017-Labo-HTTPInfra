@@ -36,7 +36,7 @@ GET / HTTP/1.0
 Host: demo.res.ch
 ```
 
-This returns us the content of the HTML file. We then obtained what we initially wanted with : `ProxyPass "/" "http://172.17.0.3:80/"`. We can also try :
+This returns us the content of the HTML file. We then obtained what we initially wanted with : `ProxyPass "/" "http://172.17.0.2:80/"`. We can also try :
 
 ```
 GET /api/countries/ HTTP/1.0
