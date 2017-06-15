@@ -18,12 +18,12 @@ ROOT=$(pwd)
 
 STATIC_IMAGE_NAME=res/apache-php
 STATIC_IMAGE_SOURCE=docker-images/apache-php-image/
-STATIC_SOURCE_PORT=80
+STATIC_SOURCE_PORT=1234
 STATIC_DEST_PORT=80
 
 DYNAMIC_IMAGE_NAME=res/express-image
 DYNAMIC_IMAGE_SOURCE=docker-images/express-image/
-DYNAMIC_SOURCE_PORT=3000
+DYNAMIC_SOURCE_PORT=4321
 DYNAMIC_DEST_PORT=3000
 
 REVERSE_IMAGE_NAME=res/apache-reverse-proxy
@@ -57,8 +57,8 @@ containerDynamicId=$(docker run --detach --publish $DYNAMIC_SOURCE_PORT:$DYNAMIC
 echo "Starting $REVERSE_IMAGE_NAME image..."
 containerReverseId=$(docker run --detach --publish $REVERSE_SOURCE_PORT:$REVERSE_DEST_PORT $REVERSE_IMAGE_NAME)
 
-echo "You can now try to access to demo.res.ch:$STATIC_SOURCE_PORT, it's the $STATIC_IMAGE_NAME image, shouldn't be accessible."
-echo "You can now try to access to demo.res.ch:$DYNAMIC_SOURCE_PORT, it's the $DYNAMIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to demo.res.ch:$STATIC_DEST_PORT, it's the $STATIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to demo.res.ch:$DYNAMIC_DEST_PORT, it's the $DYNAMIC_IMAGE_NAME image, shouldn't be accessible."
 echo "You can now try to access to demo.res.ch:$REVERSE_SOURCE_PORT, it's the $REVERSE_IMAGE_NAME image, should be accessible !"
 read -p "Press <Enter> to quit the demo."
 
