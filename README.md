@@ -1,10 +1,8 @@
 # Teaching-HEIGVD-RES-2017-Labo-HTTPInfra
-# Solution
-##### Ludovic Delafontaine & Denise Gemesio
-##### June 2017
+#### Ludovic Delafontaine & Denise Gemesio, HEIG-VD June 2017
 
-## Step 4 : AJAX requests with JQuery
-In this step, we will use the JQuery library to implement an Ajax request.
+## Step 4: AJAX requests with JQuery
+In this step, we will use the JQuery library to implement an AJAX request.
 
 Requests from the browser will automatically be sent to the dynamic server and we will get replies which will display a message on our website.
 
@@ -15,7 +13,7 @@ RUN apt-get update && \
 apt-get install -y vim
 ```
 
-After this, we can build all three images, whitout forgetting to port map on 8080:80 the reverse proxy one. 
+After this, we can build all three images, without forgetting to port map on 8080:80 the reverse proxy one.
 
 Finally, we will launch every container and verify that the IP addresses correspond to the ones in the reverse proxy configuration file, as they are hardcoded. We can now verify that we have access to `demo.res.ch:8080` and `demo.res.ch:8080/api/students/`.
 
@@ -44,7 +42,7 @@ $(function() {
                 $(".section-heading").text(message);
                 });
         };
-	
+
 	loadCountries();
 
     setInterval( loadCountries, 2000);
@@ -58,7 +56,6 @@ When we save it, if we test it on a browser, we will see that the webpage actual
 
 When we are done with the modifications and the tests, we can copy everything we have done inside the files in our own system. Finally, we will just kill the static server container and remove the image of the static server and build it again with the new configurations. We will run a container and this should work as well as the tests done before.
 
-
 ### Demo
 For a complete demo, you can run the bash script `demo.sh`.
 
@@ -67,4 +64,4 @@ chmod +x demo.sh
 ./demo.sh
 ```
 
-For the demo, you need the following packages to be installed: `docker`
+For the demo, you need the following packages to be installed: `docker` and may need to run the script as root.
