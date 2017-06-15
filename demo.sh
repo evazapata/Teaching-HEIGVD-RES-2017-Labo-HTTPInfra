@@ -18,7 +18,7 @@ ROOT=$(pwd)
 
 STATIC_IMAGE_NAME=res/apache-php
 STATIC_IMAGE_SOURCE=docker-images/apache-php-image/
-STATIC_SOURCE_PORT=2999
+STATIC_SOURCE_PORT=80
 STATIC_DEST_PORT=80
 
 DYNAMIC_IMAGE_NAME=res/express-image
@@ -57,19 +57,15 @@ containerDynamicId=$(docker run --detach --publish $DYNAMIC_SOURCE_PORT:$DYNAMIC
 echo "Starting $REVERSE_IMAGE_NAME image..."
 containerReverseId=$(docker run --detach --publish $REVERSE_SOURCE_PORT:$REVERSE_DEST_PORT $REVERSE_IMAGE_NAME)
 
-echo "You can now try to access to localhost:$STATIC_SOURCE_PORT, it's the $STATIC_IMAGE_NAME image, shouldn't be accessible."
-echo "You can now try to access to localhost:$DYNAMIC_SOURCE_PORT, it's the $DYNAMIC_IMAGE_NAME image, shouldn't be accessible."
-echo "You can now try to access to localhost:$REVERSE_SOURCE_PORT, it's the $REVERSE_IMAGE_NAME image, should be accessible !"
+echo "You can now try to access to demo.res.ch:$STATIC_SOURCE_PORT, it's the $STATIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to demo.res.ch:$DYNAMIC_SOURCE_PORT, it's the $DYNAMIC_IMAGE_NAME image, shouldn't be accessible."
+echo "You can now try to access to demo.res.ch:$REVERSE_SOURCE_PORT, it's the $REVERSE_IMAGE_NAME image, should be accessible !"
 read -p "Press <Enter> to quit the demo."
 
 echo "Killing containers..."
-docker kill ${containerStaticId}
-docker kill ${containerDynamicId}
-docker kill ${containerReverseId}
+docker kill $(docker ps -a -q)
 
-echo "Removing docker image..."
-docker rmi --force "$STATIC_IMAGE_NAME"
-docker rmi --force "$DYNAMIC_IMAGE_NAME"
-docker rmi --force "$REVERSE_IMAGE_NAME"
+echo "Removing docker images..."
+docker rm $(docker ps -a -q)
 
 echo "Demo done !"
