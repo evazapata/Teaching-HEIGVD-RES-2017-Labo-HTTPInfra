@@ -49,13 +49,13 @@ docker build --tag "$DYNAMIC_IMAGE_NAME" "$DYNAMIC_IMAGE_SOURCE"
 docker build --tag "$REVERSE_IMAGE_NAME" "$REVERSE_IMAGE_SOURCE"
 
 echo "Starting $STATIC_IMAGE_NAME image..."
-containerStaticId=$(docker run --detach --publish $STATIC_SOURCE_PORT:$STATIC_DEST_PORT $STATIC_IMAGE_NAME)
+docker run --detach --publish $STATIC_SOURCE_PORT:$STATIC_DEST_PORT $STATIC_IMAGE_NAME
 
 echo "Starting $DYNAMIC_IMAGE_NAME image..."
-containerDynamicId=$(docker run --detach --publish $DYNAMIC_SOURCE_PORT:$DYNAMIC_DEST_PORT $DYNAMIC_IMAGE_NAME)
+docker run --detach --publish $DYNAMIC_SOURCE_PORT:$DYNAMIC_DEST_PORT $DYNAMIC_IMAGE_NAME
 
 echo "Starting $REVERSE_IMAGE_NAME image..."
-containerReverseId=$(docker run --detach --publish $REVERSE_SOURCE_PORT:$REVERSE_DEST_PORT $REVERSE_IMAGE_NAME)
+docker run --detach --publish $REVERSE_SOURCE_PORT:$REVERSE_DEST_PORT $REVERSE_IMAGE_NAME
 
 echo "You can now try to access to demo.res.ch:$STATIC_DEST_PORT, it's the $STATIC_IMAGE_NAME image, shouldn't be accessible."
 echo "You can now try to access to demo.res.ch:$DYNAMIC_DEST_PORT, it's the $DYNAMIC_IMAGE_NAME image, shouldn't be accessible."
