@@ -35,9 +35,9 @@ echo "You can now open a browser and access to: http://localhost:$SOURCE_PORT"
 read -p "Press <Enter> to quit the demo."
 
 echo "Killing container..."
-docker kill "$containerId"
+docker stop $(docker ps -a -q)
 
 echo "Removing docker image..."
-docker rmi --force res/apache-php
+docker rm $(docker ps -a -q)
 
 echo "Demo done !"
